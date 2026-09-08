@@ -6,6 +6,7 @@ let points = 0;
 let totalQuestions = 0;
 let streak = 0;
 let currentQuestion = null; // { type: 'canton'|'city'|'lake'|'river', id: ... , name: ... }
+let unaskedPolitik = [];
 
 // Map variables
 let map = null;
@@ -305,10 +306,84 @@ const DISTRICTS = {
   2601: "District de Delémont", 2602: "District des Franches-Montagnes", 2603: "District de Porrentruy"
 };
 
+const FEDERAL_COUNCIL = [
+  {
+    name: 'Guy Parmelin',
+    party: 'SVP',
+    department: 'WBF (Wirtschaft, Bildung und Forschung)',
+    since: '2016',
+    canton: 'Waadt (VD)',
+    cantonAbbr: 'VD',
+    photo: 'Guy_Parmelin_(2026)_(cropped).jpg',
+    role: 'Bundespräsident 2026'
+  },
+  {
+    name: 'Ignazio Cassis',
+    party: 'FDP',
+    department: 'EDA (Auswärtige Angelegenheiten)',
+    since: '2017',
+    canton: 'Tessin (TI)',
+    cantonAbbr: 'TI',
+    photo: 'Ignazio_Cassis_(2026)_(cropped).jpg',
+    role: 'Vizepräsident 2026'
+  },
+  {
+    name: 'Karin Keller-Sutter',
+    party: 'FDP',
+    department: 'EFD (Finanzdepartement)',
+    since: '2019',
+    canton: 'St. Gallen (SG)',
+    cantonAbbr: 'SG',
+    photo: 'Karin_Keller-Sutter_(2026)_(cropped).jpg',
+    role: 'Mitglied des Bundesrates'
+  },
+  {
+    name: 'Albert Rösti',
+    party: 'SVP',
+    department: 'UVEK (Umwelt, Verkehr, Energie und Kommunikation)',
+    since: '2023',
+    canton: 'Bern (BE)',
+    cantonAbbr: 'BE',
+    photo: 'Albert_Rösti_(2026)_(cropped).jpg',
+    role: 'Mitglied des Bundesrates'
+  },
+  {
+    name: 'Elisabeth Baume-Schneider',
+    party: 'SP',
+    department: 'EDI (Departement des Innern)',
+    since: '2023',
+    canton: 'Jura (JU)',
+    cantonAbbr: 'JU',
+    photo: 'Elisabeth_Baume-Schneider_(2024,_cropped_2).jpg',
+    role: 'Mitglied des Bundesrates'
+  },
+  {
+    name: 'Beat Jans',
+    party: 'SP',
+    department: 'EJPD (Justiz- und Polizeidepartement)',
+    since: '2024',
+    canton: 'Basel-Stadt (BS)',
+    cantonAbbr: 'BS',
+    photo: 'Beat_Jans_(2026)_(cropped).jpg',
+    role: 'Mitglied des Bundesrates'
+  },
+  {
+    name: 'Martin Pfister',
+    party: 'Die Mitte',
+    department: 'VBS (Verteidigung, Bevölkerungsschutz und Sport)',
+    since: '2025',
+    canton: 'Zug (ZG)',
+    cantonAbbr: 'ZG',
+    photo: '20250311-Martin-Pfister.jpg',
+    role: 'Mitglied des Bundesrates'
+  }
+];
+
 // Elements Lookup DOM
 const btnModeSchweiz = document.getElementById('btn-mode-schweiz');
 const btnModeKanton = document.getElementById('btn-mode-kanton');
 const btnModeWappen = document.getElementById('btn-mode-wappen');
+const btnModePolitik = document.getElementById('btn-mode-politik');
 const cantonSelectWrapper = document.getElementById('canton-select-wrapper');
 const cantonSelector = document.getElementById('canton-selector');
 
@@ -316,6 +391,13 @@ const targetTypeBadge = document.getElementById('target-type-badge');
 const targetPrompt = document.getElementById('target-prompt');
 const wappenContainer = document.getElementById('wappen-container');
 const wappenImage = document.getElementById('wappen-image');
+const politikContainer = document.getElementById('politik-container');
+const politikImage = document.getElementById('politik-image');
+const politikRole = document.getElementById('politik-role');
+const politikParty = document.getElementById('politik-party');
+const politikSince = document.getElementById('politik-since');
+const politikDept = document.getElementById('politik-dept');
+const politikCanton = document.getElementById('politik-canton');
 const statPoints = document.getElementById('stat-points');
 const statTotal = document.getElementById('stat-total');
 const statAccuracy = document.getElementById('stat-accuracy');
@@ -685,8 +767,32 @@ function generateQuestion() {
 
   const isCantonMode = gameMode === 'kanton';
   const isWappenMode = gameMode === 'wappen';
+  const isPolitikMode = gameMode === 'politik';
 
-  if (isWappenMode) {
+  if (isPolitikMode) {
+    // If the unasked list is empty, refill and shuffle it
+    if (unaskedPolitik.length === 0) {
+      unaskedPolitik = [...FEDERAL_COUNCIL];
+      // Fisher-Yates shuffle
+      for (let i = unaskedPolitik.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [unaskedPolitik[i], unaskedPolitik[j]] = [unaskedPolitik[j], unaskedPolitik[i]];
+      }
+    }
+    
+    // Pick the next member from our non-repeating deck
+    const member = unaskedPolitik.pop();
+    const cantonIdStr = Object.keys(CANTONS).find(id => CANTONS[id].abbr === member.cantonAbbr);
+    if (cantonIdStr) {
+      pool.push({
+        type: 'canton',
+        id: parseInt(cantonIdStr),
+        name: member.name,
+        member: member,
+        prompt: `den Herkunftskanton von ${member.name}`
+      });
+    }
+  } else if (isWappenMode) {
     // Only cantons with coats of arms
     Object.entries(CANTONS).forEach(([id, canton]) => {
       pool.push({
@@ -831,18 +937,40 @@ function generateQuestion() {
   currentQuestion = selected;
 
   // Update prompt UI
-  if (isWappenMode) {
+  if (isPolitikMode) {
+    targetTypeBadge.textContent = 'Politik (Bundesrat)';
+    targetPrompt.textContent = `Finde den Kanton von: ${selected.name}`;
+    politikImage.src = `https://commons.wikimedia.org/wiki/Special:FilePath/${selected.member.photo}?width=120`;
+    politikRole.textContent = selected.member.role;
+    politikParty.textContent = selected.member.party;
+    politikSince.textContent = selected.member.since;
+    politikDept.textContent = selected.member.department;
+    politikCanton.textContent = '?';
+    politikCanton.className = 'text-amber-400 font-black text-sm';
+    
+    politikContainer.classList.remove('hidden');
+    politikContainer.classList.add('flex');
+    wappenContainer.classList.remove('flex');
+    wappenContainer.classList.add('hidden');
+    wappenImage.src = '';
+  } else if (isWappenMode) {
     targetTypeBadge.textContent = 'Kanton-Wappen';
     targetPrompt.textContent = 'Finde diesen Kanton!';
     wappenImage.src = `https://commons.wikimedia.org/wiki/Special:FilePath/Wappen_${selected.wappen}_matt.svg?width=120`;
     wappenContainer.classList.remove('hidden');
     wappenContainer.classList.add('flex');
+    politikContainer.classList.remove('flex');
+    politikContainer.classList.add('hidden');
+    politikImage.src = '';
   } else {
     targetTypeBadge.textContent = selected.type === 'canton' ? (isCantonMode ? 'Nachbarkanton' : 'Kanton') : selected.type;
     targetPrompt.textContent = selected.name;
     wappenContainer.classList.remove('flex');
     wappenContainer.classList.add('hidden');
     wappenImage.src = '';
+    politikContainer.classList.remove('flex');
+    politikContainer.classList.add('hidden');
+    politikImage.src = '';
   }
 
   // Visual highlights
@@ -864,6 +992,12 @@ function handleGuess(guessedType, guessedId, leafletElement) {
     points++;
     streak++;
     
+    // Reveal Herkunftskanton in Politik mode
+    if (gameMode === 'politik' && currentQuestion && currentQuestion.member) {
+      politikCanton.textContent = currentQuestion.member.canton;
+      politikCanton.className = 'text-emerald-400 font-black text-sm animate-pulse';
+    }
+    
     // Celebratory effect
     triggerCelebrate();
     addLogItem('correct', `Richtig! ${currentQuestion.name} gefunden.`);
@@ -871,10 +1005,11 @@ function handleGuess(guessedType, guessedId, leafletElement) {
     // Temporarily color element green
     flashElement(leafletElement, '#10b981'); // Emerald green
 
-    // Highlight complete
+    // Highlight complete (slightly longer delay in Politik mode so the card can be read)
+    const delay = gameMode === 'politik' ? 2500 : 1200;
     setTimeout(() => {
       generateQuestion();
-    }, 1200);
+    }, delay);
 
   } else {
     // Incorrect guess
@@ -996,17 +1131,19 @@ function populateCantonSelector() {
   });
 }
 
-// Switch between Switzerland View, Canton View, and Wappen View
+// Switch between Switzerland View, Canton View, Wappen View, and Politik View
 function switchViewMode(mode) {
   gameMode = mode;
+  unaskedPolitik = [];
   
-  const activeClass = "py-2 px-2 rounded-lg font-bold text-xs transition-all focus:outline-none flex flex-col items-center justify-center space-y-1 bg-swissred text-white shadow-md shadow-red-900/20 border border-red-500/30";
-  const inactiveClass = "py-2 px-2 rounded-lg font-bold text-xs transition-all focus:outline-none flex flex-col items-center justify-center space-y-1 bg-gray-700 hover:bg-gray-600 text-gray-300 border border-transparent";
+  const activeClass = "py-2.5 px-3 rounded-lg font-bold text-xs transition-all focus:outline-none flex items-center justify-center space-x-2 bg-swissred text-white shadow-md shadow-red-900/20 border border-red-500/30";
+  const inactiveClass = "py-2.5 px-3 rounded-lg font-bold text-xs transition-all focus:outline-none flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 text-gray-300 border border-transparent";
   
   if (mode === 'schweiz') {
     btnModeSchweiz.className = activeClass;
     btnModeKanton.className = inactiveClass;
     btnModeWappen.className = inactiveClass;
+    btnModePolitik.className = inactiveClass;
     cantonSelectWrapper.classList.add('hidden');
     
     // Remove district layer so it doesn't block canton clicks!
@@ -1018,6 +1155,7 @@ function switchViewMode(mode) {
     btnModeKanton.className = activeClass;
     btnModeSchweiz.className = inactiveClass;
     btnModeWappen.className = inactiveClass;
+    btnModePolitik.className = inactiveClass;
     cantonSelectWrapper.classList.remove('hidden');
     
     // Add district layer in canton mode and manage layer order
@@ -1029,17 +1167,30 @@ function switchViewMode(mode) {
     
     // Focus map on current active Canton
     zoomToCanton(selectedCantonAbbr);
-  } else {
-    // wappen mode
+  } else if (mode === 'wappen') {
     btnModeWappen.className = activeClass;
     btnModeSchweiz.className = inactiveClass;
     btnModeKanton.className = inactiveClass;
+    btnModePolitik.className = inactiveClass;
     cantonSelectWrapper.classList.add('hidden');
     
     // Remove district layer so it doesn't block canton clicks!
     if (districtGeoJsonLayer) map.removeLayer(districtGeoJsonLayer);
     
     // Zoom back to full Switzerland view so they can see all cantons for the wappen quiz
+    map.setView([46.8182, 8.2275], 8);
+  } else {
+    // politik mode
+    btnModePolitik.className = activeClass;
+    btnModeSchweiz.className = inactiveClass;
+    btnModeKanton.className = inactiveClass;
+    btnModeWappen.className = inactiveClass;
+    cantonSelectWrapper.classList.add('hidden');
+    
+    // Remove district layer so it doesn't block canton clicks!
+    if (districtGeoJsonLayer) map.removeLayer(districtGeoJsonLayer);
+    
+    // Zoom back to full Switzerland view so they can see all cantons
     map.setView([46.8182, 8.2275], 8);
   }
 
@@ -1080,6 +1231,7 @@ function setupEventListeners() {
   btnModeSchweiz.addEventListener('click', () => switchViewMode('schweiz'));
   btnModeKanton.addEventListener('click', () => switchViewMode('kanton'));
   btnModeWappen.addEventListener('click', () => switchViewMode('wappen'));
+  btnModePolitik.addEventListener('click', () => switchViewMode('politik'));
 
   // Canton Select menu selection
   cantonSelector.addEventListener('change', (e) => {
@@ -1109,6 +1261,7 @@ function setupEventListeners() {
       points = 0;
       totalQuestions = 0;
       streak = 0;
+      unaskedPolitik = [];
       guessLog.innerHTML = '<div class="text-gray-500 italic text-center py-4">Noch keine Versuche gemacht</div>';
       updateStatsUI();
       generateQuestion();
