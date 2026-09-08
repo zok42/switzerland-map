@@ -2,6 +2,12 @@
 
 Eine interaktive Node.js-Webanwendung, die als spielerisches Geografie-Quiz für die Schweiz dient. Spieler müssen Kantone, Bezirke, Städte, Seen, Flüsse und Bundesräte auf einer stummen Schweizer Karte (ohne Namen) finden. Die Anwendung läuft vollständig lokal und startet sofort ohne vorherige Anmeldung oder Bestenliste.
 
+## 📸 Screenshots
+
+| Politik-Modus (Bundesrat-Quiz) | Wappen-Modus (Kantonwappen-Quiz) |
+| :---: | :---: |
+| ![Politik-Modus](./politik_mode.png) | ![Wappen-Modus](./wappen_mode.png) |
+
 ## 🌟 Features
 
 - **Stumme Google-Maps-Karte:** Die Anwendung nutzt einen hochauflösenden Google-Maps-Hintergrund, bei dem alle integrierten Ortsnamen, Beschriftungen und Texte serverseitig ausgeblendet wurden. Dies stellt sicher, dass das Quiz stumm bleibt und eine echte geografische Herausforderung darstellt!
