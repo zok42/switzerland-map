@@ -1,0 +1,80 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: +
+      - generic [ref=e5]:
+        - heading "Grüezi! Schweiz Landkarten Quiz" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Finde die Kantone, Städte, Seen und Flüsse
+  - generic [ref=e8]:
+    - complementary [ref=e9]:
+      - generic [ref=e10]:
+        - heading " Ansicht & Modus" [level=3] [ref=e11]:
+          - generic [ref=e12]: 
+          - text: Ansicht & Modus
+        - generic [ref=e13]:
+          - button " Schweiz" [ref=e14] [cursor=pointer]:
+            - generic [ref=e15]: 
+            - generic [ref=e16]: Schweiz
+          - button " Kanton" [ref=e17] [cursor=pointer]:
+            - generic [ref=e18]: 
+            - generic [ref=e19]: Kanton
+        - text: 
+      - generic [ref=e20]:
+        - generic [ref=e22]:
+          - heading " Aktuelle Aufgabe" [level=3] [ref=e23]:
+            - generic [ref=e24]: 
+            - text: Aktuelle Aufgabe
+          - generic [ref=e25]: KANTON
+          - generic [ref=e26]: Zürich
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: Punkte
+            - strong [ref=e30]: "0"
+          - generic [ref=e31]:
+            - generic [ref=e32]: Fragen
+            - strong [ref=e33]: "0"
+          - generic [ref=e34]:
+            - generic [ref=e35]: Quote
+            - strong [ref=e36]: 0%
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - text: "Serie:"
+            - strong [ref=e39]: "0"
+            - generic [ref=e40]: 
+          - button "Überspringen " [ref=e41] [cursor=pointer]:
+            - generic [ref=e42]: Überspringen
+            - generic [ref=e43]: 
+      - generic [ref=e44]:
+        - heading " Verlauf Zurücksetzen" [level=3] [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]: 
+            - text: Verlauf
+          - button "Zurücksetzen" [ref=e48] [cursor=pointer]
+        - generic [ref=e49]: Noch keine Versuche gemacht
+    - main [ref=e51]:
+      - generic [ref=e53]:
+        - button "Zoom in" [ref=e54] [cursor=pointer]: +
+        - button "Zoom out" [ref=e55] [cursor=pointer]: −
+      - generic [ref=e57]:
+        - generic [ref=e58]: "Filter auf der Karte:"
+        - generic [ref=e59]:
+          - generic [ref=e60] [cursor=pointer]:
+            - checkbox "Kantone" [checked] [ref=e61]
+            - generic [ref=e62]: Kantone
+          - generic [ref=e63] [cursor=pointer]:
+            - checkbox "Bezirke" [checked] [ref=e64]
+            - generic [ref=e65]: Bezirke
+          - generic [ref=e66] [cursor=pointer]:
+            - checkbox "Städte" [checked] [ref=e67]
+            - generic [ref=e68]: Städte
+          - generic [ref=e69] [cursor=pointer]:
+            - checkbox "Seen" [checked] [ref=e70]
+            - generic [ref=e71]: Seen
+          - generic [ref=e72] [cursor=pointer]:
+            - checkbox "Flüsse" [checked] [ref=e73]
+            - generic [ref=e74]: Flüsse
+      - generic:
+        - strong:
+          - generic: 
+          - text: "Anleitung:"
+        - text: Click on the shapes on the map to find the requested locations. Correct clicks are scored instantly!

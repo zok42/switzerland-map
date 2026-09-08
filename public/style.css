@@ -1,0 +1,66 @@
+/* Custom scrollbar styling for a modern sidebar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Base style tweaks for leaflet map */
+#map {
+  background: #020617; /* Slate-950 dark background */
+}
+
+/* Map hover and highlight transition animations */
+.leaflet-interactive {
+  transition: fill-opacity 0.2s ease, stroke-width 0.2s ease, fill 0.2s ease, stroke 0.2s ease;
+  cursor: pointer;
+}
+
+/* Custom leaflet tooltip styles */
+.custom-tooltip {
+  background-color: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(218, 41, 28, 0.4);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.custom-tooltip:before {
+  border-top-color: rgba(17, 24, 39, 0.95);
+}
+
+/* Styling for our beautiful quiz feedback logging */
+.log-item-correct {
+  border-left: 3px solid #10b981; /* Emerald-500 */
+}
+
+.log-item-wrong {
+  border-left: 3px solid #ef4444; /* Red-500 */
+}
+
+.log-item-skip {
+  border-left: 3px solid #f59e0b; /* Amber-500 */
+}

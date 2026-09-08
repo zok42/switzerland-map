@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schweiz Landkarte Quiz</title>
+  <!-- CSS assets -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css" />
+  <!-- Tailwind Customization -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            swissred: '#da291c',
+            swissdark: '#1a1a1a',
+            swissgray: '#f5f5f5',
+            swissblue: '#0070c0'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-900 text-white font-sans h-screen flex flex-col overflow-hidden">
+
+  <!-- Main Navigation / Header -->
+  <header class="bg-swissdark border-b border-gray-800 px-6 py-4 flex items-center justify-between shrink-0">
+    <div class="flex items-center space-x-3">
+      <div class="bg-swissred text-white p-2 rounded-lg font-bold text-xl flex items-center justify-center w-10 h-10 shadow-md animate-pulse">
+        +
+      </div>
+      <div>
+        <h1 class="font-extrabold text-xl tracking-tight">Grüezi! Schweiz Landkarten Quiz</h1>
+        <p class="text-xs text-gray-400">Finde die Kantone, Städte, Seen und Flüsse</p>
+      </div>
+    </div>
+    
+  </header>
+
+  <!-- Dashboard Container -->
+  <div class="flex flex-1 overflow-hidden min-h-0">
+    
+    <!-- Sidebar Controls -->
+    <aside class="w-96 bg-swissdark border-r border-gray-800 p-6 flex flex-col overflow-y-auto space-y-6 shrink-0 z-10">
+      
+      <!-- Mode Selection -->
+      <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/60 shadow-inner">
+        <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3"><i class="fa-solid fa-layer-group mr-1.5 text-swissred"></i> Ansicht & Modus</h3>
+        
+        <div class="grid grid-cols-3 gap-1.5 mb-4">
+          <button id="btn-mode-schweiz" class="py-2 px-2 rounded-lg font-bold text-xs transition-all focus:outline-none flex flex-col items-center justify-center space-y-1 bg-swissred text-white shadow-md shadow-red-900/20 border border-red-500/30">
+            <i class="fa-solid fa-map text-sm"></i>
+            <span>Schweiz</span>
+          </button>
+          <button id="btn-mode-kanton" class="py-2 px-2 rounded-lg font-bold text-xs transition-all focus:outline-none flex flex-col items-center justify-center space-y-1 bg-gray-700 hover:bg-gray-600 text-gray-300 border border-transparent">
+            <i class="fa-solid fa-mountain-city text-sm"></i>
+            <span>Kanton</span>
+          </button>
+          <button id="btn-mode-wappen" class="py-2 px-2 rounded-lg font-bold text-xs transition-all focus:outline-none flex flex-col items-center justify-center space-y-1 bg-gray-700 hover:bg-gray-600 text-gray-300 border border-transparent">
+            <i class="fa-solid fa-shield-halved text-sm"></i>
+            <span>Wappen</span>
+          </button>
+        </div>
+
+        <!-- Canton Selector Wrapper (Hidden by default, shown in Canton mode) -->
+        <div id="canton-select-wrapper" class="hidden transition-all duration-300 mt-2 animate-fadeIn">
+          <label for="canton-selector" class="block text-xs font-medium text-gray-400 mb-1.5">Wähle einen Kanton:</label>
+          <div class="relative">
+            <select id="canton-selector" class="w-full bg-gray-900 border border-gray-700 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-swissred transition-colors appearance-none pr-8">
+              <!-- Options injected dynamically by JS -->
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-gray-400">
+              <i class="fa-solid fa-chevron-down text-xs"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Board (Large central display for what to find) -->
+      <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 relative overflow-hidden flex flex-col justify-between shadow-lg">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-swissred/5 rounded-full blur-xl"></div>
+        
+        <div class="mb-4">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-question-circle mr-1.5 text-swissred animate-bounce"></i> Aktuelle Aufgabe</h3>
+          <span id="target-type-badge" class="inline-block bg-swissred/20 text-swissred text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide mb-3 border border-swissred/30">
+            KANTON
+          </span>
+          <div id="target-prompt" class="text-3xl font-extrabold tracking-tight text-white leading-tight min-h-[4rem] flex items-center">
+            Zürich
+          </div>
+          <div id="wappen-container" class="hidden my-3 justify-center items-center">
+            <div class="bg-gray-900/60 p-4 rounded-xl border border-gray-700/60 flex items-center justify-center shadow-inner w-32 h-36 mx-auto">
+              <img id="wappen-image" src="" alt="Kantonswappen" class="max-w-full max-h-full object-contain filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)] transition-all duration-300" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats row inside the board -->
+        <div class="grid grid-cols-3 gap-2 bg-gray-900/60 p-3 rounded-lg border border-gray-700/40 text-center">
+          <div>
+            <span class="block text-[10px] text-gray-400 font-bold uppercase">Punkte</span>
+            <strong id="stat-points" class="text-lg font-black text-emerald-400">0</strong>
+          </div>
+          <div>
+            <span class="block text-[10px] text-gray-400 font-bold uppercase">Fragen</span>
+            <strong id="stat-total" class="text-lg font-black text-blue-400">0</strong>
+          </div>
+          <div>
+            <span class="block text-[10px] text-gray-400 font-bold uppercase">Quote</span>
+            <strong id="stat-accuracy" class="text-lg font-black text-amber-400">0%</strong>
+          </div>
+        </div>
+        
+        <!-- Streak Info -->
+        <div class="mt-3 flex items-center justify-between text-xs px-1 text-gray-400">
+          <span>Serie: <strong id="stat-streak" class="text-orange-400">0</strong> <i class="fa-solid fa-fire text-orange-500"></i></span>
+          <button id="skip-question" class="hover:text-white transition-colors font-bold flex items-center space-x-1">
+            <span>Überspringen</span>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Feedback / Guess History -->
+      <div class="flex-1 bg-gray-800/40 border border-gray-800/80 rounded-xl p-4 flex flex-col min-h-0 shadow-inner">
+        <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+          <span><i class="fa-solid fa-clock-rotate-left mr-1.5 text-gray-500"></i> Verlauf</span>
+          <button id="reset-stats" class="text-[10px] text-red-400 hover:text-red-300 font-bold transition-colors">Zurücksetzen</button>
+        </h3>
+        <div id="guess-log" class="flex-1 overflow-y-auto space-y-2 text-xs pr-1 scrollbar-thin">
+          <div class="text-gray-500 italic text-center py-4">Noch keine Versuche gemacht</div>
+        </div>
+      </div>
+
+
+
+    </aside>
+
+    <!-- Map Area -->
+    <main class="flex-1 relative bg-slate-950 flex flex-col">
+      <div id="map" class="flex-1 w-full h-full z-0"></div>
+      
+      <!-- Map overlays -->
+      <div class="absolute top-4 right-4 z-10 flex flex-col space-y-2">
+        <div class="bg-gray-900/95 border border-gray-700 py-2.5 px-4 rounded-xl shadow-2xl flex items-center space-x-4">
+          <span class="text-xs text-gray-400">Filter auf der Karte:</span>
+          <div class="flex items-center space-x-3 text-xs font-bold">
+            <label class="flex items-center space-x-1.5 cursor-pointer hover:text-emerald-400 transition-colors">
+              <input type="checkbox" id="chk-filter-canton" checked class="accent-swissred rounded" />
+              <span>Kantone</span>
+            </label>
+            <label class="flex items-center space-x-1.5 cursor-pointer hover:text-emerald-400 transition-colors">
+              <input type="checkbox" id="chk-filter-district" checked class="accent-swissred rounded" />
+              <span>Bezirke</span>
+            </label>
+            <label class="flex items-center space-x-1.5 cursor-pointer hover:text-emerald-400 transition-colors">
+              <input type="checkbox" id="chk-filter-city" checked class="accent-swissred rounded" />
+              <span>Städte</span>
+            </label>
+            <label class="flex items-center space-x-1.5 cursor-pointer hover:text-emerald-400 transition-colors">
+              <input type="checkbox" id="chk-filter-lake" checked class="accent-swissred rounded" />
+              <span>Seen</span>
+            </label>
+            <label class="flex items-center space-x-1.5 cursor-pointer hover:text-emerald-400 transition-colors">
+              <input type="checkbox" id="chk-filter-river" checked class="accent-swissred rounded" />
+              <span>Flüsse</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick help footer on map -->
+      <div class="absolute bottom-4 left-4 z-10 bg-gray-900/90 border border-gray-800 rounded-lg px-4 py-2 text-xs max-w-sm text-gray-300 shadow-xl pointer-events-none">
+        <strong class="text-white"><i class="fa-solid fa-circle-info text-swissred mr-1"></i> Anleitung:</strong> Click on the shapes on the map to find the requested locations. Correct clicks are scored instantly!
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
