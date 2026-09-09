@@ -2,10 +2,17 @@
   "name": "switzerland-map",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
+  "bin": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build:win": "pkg . --targets node18-win-x64 --output switzerland-map-quiz.exe",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*"
+    ]
   },
   "keywords": [],
   "author": "",

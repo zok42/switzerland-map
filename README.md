@@ -62,6 +62,19 @@ Stelle sicher, dass du [Node.js](https://nodejs.org/) (Version 18 oder neuer) in
 3. **Im Browser öffnen:**
    Navigiere zu [http://localhost:3000](http://localhost:3000)
 
+### 🖥️ Windows Standalone-Version (.exe)
+
+Es wurde eine eigenständige Windows-Datei generiert, die **ohne vorherige Installation von Node.js oder npm** direkt gestartet werden kann:
+
+1. Doppelklicke auf die Datei **`switzerland-map-quiz.exe`** im Hauptverzeichnis des Projekts.
+2. Ein Konsolenfenster öffnet sich und startet den lokalen Server im Hintergrund.
+3. Öffne einfach deinen Webbrowser und navigiere zu: [http://localhost:3000](http://localhost:3000)
+
+*Hinweis zur Entwicklung:* Wenn du Änderungen am Code vornimmst und die `.exe` auf deinem System neu kompilieren möchtest, kannst du dies mit folgendem Befehl tun:
+```bash
+npm run build:win
+```
+
 ## 🎮 Spielanleitung
 
 1. Wähle im oberen Bereich der linken Sidebar einen der **vier Spielmodi** (*Schweiz*, *Kanton*, *Wappen* oder *Politik*) aus.
